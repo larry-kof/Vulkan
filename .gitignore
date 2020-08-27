@@ -1,0 +1,5 @@
+.DS_Store
+.vscode/
+/build
+/xcodeProj/Vulkan/Build
+/xcodeProj/Vulkan/Index
