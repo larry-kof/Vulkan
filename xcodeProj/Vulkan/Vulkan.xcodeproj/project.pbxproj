@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1811DB992549ACE80009472F /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1811DB962549ACE70009472F /* texture.cpp */; };
+		1811DB9A2549ACE80009472F /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1811DB972549ACE70009472F /* triangle.cpp */; };
+		1811DB9B2549ACE80009472F /* depth_example.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1811DB982549ACE70009472F /* depth_example.cpp */; };
 		181FBF6024F11596009A5874 /* VksFramebuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181FBF5B24F11595009A5874 /* VksFramebuffer.cpp */; };
 		181FBF6124F11596009A5874 /* VksTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181FBF5C24F11595009A5874 /* VksTexture.cpp */; };
 		181FBF6324F115BA009A5874 /* shaders in CopyFiles */ = {isa = PBXBuildFile; fileRef = 181FBF6224F115A6009A5874 /* shaders */; };
@@ -14,6 +17,7 @@
 		1820FB3C24B9675D00053D94 /* libvulkan.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820FB3A24B9675D00053D94 /* libvulkan.1.dylib */; };
 		1820FB3D24B9677400053D94 /* libvulkan.1.2.131.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1820FB3924B9675D00053D94 /* libvulkan.1.2.131.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1820FB3E24B9677400053D94 /* libvulkan.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1820FB3A24B9675D00053D94 /* libvulkan.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		183073272551944D00FBAF56 /* texture.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 183073262551944D00FBAF56 /* texture.jpg */; };
 		1837BC5624D6638200A5B633 /* VksRenderPass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1837BC5524D6638200A5B633 /* VksRenderPass.cpp */; };
 		18E98EFB24BAB2CD00527066 /* VksGraphicPipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 18E98EF924BAB2CD00527066 /* VksGraphicPipeline.cpp */; };
 		18E98EFE24BB08FB00527066 /* VksColorBlend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 18E98EFC24BB08FB00527066 /* VksColorBlend.cpp */; };
@@ -36,6 +40,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				183073272551944D00FBAF56 /* texture.jpg in CopyFiles */,
 				181FBF6324F115BA009A5874 /* shaders in CopyFiles */,
 				1820FB3D24B9677400053D94 /* libvulkan.1.2.131.dylib in CopyFiles */,
 				1820FB3E24B9677400053D94 /* libvulkan.1.dylib in CopyFiles */,
@@ -46,6 +51,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1811DB962549ACE70009472F /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../Demo/texture.cpp; sourceTree = "<group>"; };
+		1811DB972549ACE70009472F /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangle.cpp; path = ../../Demo/triangle.cpp; sourceTree = "<group>"; };
+		1811DB982549ACE70009472F /* depth_example.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = depth_example.cpp; path = ../../Demo/depth_example.cpp; sourceTree = "<group>"; };
 		181FBF5B24F11595009A5874 /* VksFramebuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VksFramebuffer.cpp; path = ../../VksFramebuffer.cpp; sourceTree = "<group>"; };
 		181FBF5C24F11595009A5874 /* VksTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VksTexture.cpp; path = ../../VksTexture.cpp; sourceTree = "<group>"; };
 		181FBF5D24F11596009A5874 /* VksTexture.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = VksTexture.hpp; path = ../../VksTexture.hpp; sourceTree = "<group>"; };
@@ -54,6 +62,7 @@
 		181FBF6224F115A6009A5874 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = ../../shaders; sourceTree = "<group>"; };
 		1820FB3924B9675D00053D94 /* libvulkan.1.2.131.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.2.131.dylib; path = "../../../../Downloads/vulkansdk-macos-1.2.131.2/macOS/lib/libvulkan.1.2.131.dylib"; sourceTree = "<group>"; };
 		1820FB3A24B9675D00053D94 /* libvulkan.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.dylib; path = "../../../../Downloads/vulkansdk-macos-1.2.131.2/macOS/lib/libvulkan.1.dylib"; sourceTree = "<group>"; };
+		183073262551944D00FBAF56 /* texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = texture.jpg; path = ../../texture.jpg; sourceTree = "<group>"; };
 		1837BC5424D6638200A5B633 /* VksRenderPass.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = VksRenderPass.hpp; path = ../../VksRenderPass.hpp; sourceTree = "<group>"; };
 		1837BC5524D6638200A5B633 /* VksRenderPass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VksRenderPass.cpp; path = ../../VksRenderPass.cpp; sourceTree = "<group>"; };
 		18E98EF924BAB2CD00527066 /* VksGraphicPipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VksGraphicPipeline.cpp; path = ../../VksGraphicPipeline.cpp; sourceTree = "<group>"; };
@@ -93,9 +102,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1811DB952549ACCA0009472F /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				1811DB982549ACE70009472F /* depth_example.cpp */,
+				1811DB962549ACE70009472F /* texture.cpp */,
+				1811DB972549ACE70009472F /* triangle.cpp */,
+			);
+			name = Demo;
+			sourceTree = "<group>";
+		};
 		4A254DA824B8326D002590CB = {
 			isa = PBXGroup;
 			children = (
+				183073262551944D00FBAF56 /* texture.jpg */,
 				181FBF6224F115A6009A5874 /* shaders */,
 				4A254DBB24B832A4002590CB /* Sources */,
 				4A254DB224B8326D002590CB /* Products */,
@@ -114,6 +134,7 @@
 		4A254DBB24B832A4002590CB /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				1811DB952549ACCA0009472F /* Demo */,
 				181FBF5F24F11596009A5874 /* stb_image.h */,
 				181FBF5B24F11595009A5874 /* VksFramebuffer.cpp */,
 				181FBF5E24F11596009A5874 /* VksFramebuffer.hpp */,
@@ -212,6 +233,7 @@
 			files = (
 				18E98EFE24BB08FB00527066 /* VksColorBlend.cpp in Sources */,
 				4A254DCA24B832C2002590CB /* VksShaderProgram.cpp in Sources */,
+				1811DB9B2549ACE80009472F /* depth_example.cpp in Sources */,
 				4A254DC924B832C2002590CB /* VkEngine.cpp in Sources */,
 				4A254DC824B832C2002590CB /* main.cpp in Sources */,
 				1837BC5624D6638200A5B633 /* VksRenderPass.cpp in Sources */,
@@ -221,7 +243,9 @@
 				181FBF6124F11596009A5874 /* VksTexture.cpp in Sources */,
 				181FBF6024F11596009A5874 /* VksFramebuffer.cpp in Sources */,
 				4A254DCB24B832C2002590CB /* VksSwapChain.cpp in Sources */,
+				1811DB992549ACE80009472F /* texture.cpp in Sources */,
 				18E98EFB24BAB2CD00527066 /* VksGraphicPipeline.cpp in Sources */,
+				1811DB9A2549ACE80009472F /* triangle.cpp in Sources */,
 				18E98F0124BB115F00527066 /* VksDepthStencil.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

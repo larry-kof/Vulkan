@@ -17,6 +17,7 @@ public:
     VksRenderPass();
     ~VksRenderPass();
     static std::shared_ptr<VksRenderPass> createSimpleColorAttachmentRenderPass( VkFormat colorFormat );
+    static std::shared_ptr<VksRenderPass> createColorDepthRenderPass( VkFormat colorFormat, VkImageLayout colorImageLayout, VkFormat depthFormat, VkImageLayout depthImageLayout );
     
     void setAttachmentDescriptors(const std::vector<VkAttachmentDescription> &attachDescs);
     void addAllClearOpAttachmentDescriptor(VkFormat attachFormat, VkImageLayout finalImagelayout);

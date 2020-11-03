@@ -15,7 +15,7 @@ VksDepthStencil::VksDepthStencil()
     m_depthStencil.depthTestEnable = VK_FALSE;
     m_depthStencil.stencilTestEnable = VK_FALSE;
     m_depthStencil.depthWriteEnable = VK_FALSE;
-    
+
     m_depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     m_depthStencil.back.failOp = VK_STENCIL_OP_KEEP;
     m_depthStencil.back.passOp = VK_STENCIL_OP_KEEP;
@@ -25,6 +25,9 @@ VksDepthStencil::VksDepthStencil()
     m_depthStencil.back.depthFailOp = VK_STENCIL_OP_KEEP;
     m_depthStencil.back.writeMask = 0;
     m_depthStencil.front = m_depthStencil.back;
+    m_depthStencil.depthBoundsTestEnable = VK_FALSE;
+    m_depthStencil.minDepthBounds = 0.0f; // Optional
+    m_depthStencil.maxDepthBounds = 1.0f; // Optional
 }
 
 VksDepthStencil::VksDepthStencil(const VksDepthStencil& depthStencil)

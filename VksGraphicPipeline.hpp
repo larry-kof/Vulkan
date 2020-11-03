@@ -48,16 +48,10 @@ public:
         }
     }
     
-    void setViewport( const VkViewport& viewport, const VkRect2D& scissor = {} );
     void setSubpassIndex( uint32_t subpassIndex );
-    void createGraphicPipeline();
     VkPipeline getVkGraphicPipele()
     {
         return m_graphicPipeline;
-    }
-    VkRenderPass getVkRenderPass()
-    {
-        return m_graphicPipelineInfo.renderPass;
     }
 protected:
     void __addShaderComponent( VksShaderProgram* shader );
@@ -65,6 +59,9 @@ protected:
     void __addColorBlendComponent( VksColorBlend* colorBlend );
     void __addDepthStencilComponent( VksDepthStencil* depthStencil );
     void __addRenderPass( VksRenderPass* renderPass );
+    
+    void __createGraphicPipeline();
+    friend class VksFramebuffer;
     
     VkGraphicsPipelineCreateInfo m_graphicPipelineInfo;
     VksColorBlend m_colorBlend;
@@ -74,6 +71,8 @@ protected:
     VkPipelineViewportStateCreateInfo m_viewportState;
     VkViewport m_viewport;
     VkRect2D m_scissor;
+    
+    std::weak_ptr<VksShaderProgram> m_weakShader;
 };
 
 #endif /* VksGraphicPipeline_hpp */

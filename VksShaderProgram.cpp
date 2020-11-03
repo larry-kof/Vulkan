@@ -194,6 +194,24 @@ void VksShaderProgram::updateShaderUniform( int index, uint32_t binding, VkDescr
     vkUpdateDescriptorSets(m_logicDevice, 1, &writeDesc, 0, nullptr);
 }
 
+void VksShaderProgram::updateSampler(int index, uint32_t binding, VkDescriptorType type, const VksTexture& texture)
+{
+    VkWriteDescriptorSet writeDesc = {};
+    writeDesc.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDesc.dstSet = m_descSets[index];
+    writeDesc.dstBinding = binding;
+    writeDesc.descriptorType = type;
+    
+    writeDesc.dstArrayElement = 0;
+    writeDesc.descriptorCount = 1;
+    writeDesc.pBufferInfo = nullptr;
+    const VkDescriptorImageInfo& imageInfo = texture.getDesscriptor();
+    writeDesc.pImageInfo = &imageInfo;
+    writeDesc.pTexelBufferView = nullptr; // Optional
+
+    vkUpdateDescriptorSets(m_logicDevice, 1, &writeDesc, 0, nullptr);
+}
+
 const std::vector<VkPipelineShaderStageCreateInfo>& VksShaderProgram::getShaderStageCreateInfo()
 {
     if( m_computeShader == VK_NULL_HANDLE )

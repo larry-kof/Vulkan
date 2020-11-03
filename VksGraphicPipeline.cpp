@@ -59,6 +59,8 @@ void VksGraphicPipeline::__addShaderComponent(VksShaderProgram *shader)
 //    VK_CHECK( vkCreatePipelineLayout(m_logicDevice, &pipelineInfo, nullptr, &m_pipelineLayout) )
     
     m_graphicPipelineInfo.layout = shader->getPipelineLayout();
+    
+    m_weakShader = shader->shared_from_this();
 }
 
 void VksGraphicPipeline::__addAttributeComponent(VksAttribute *attribute)
@@ -88,8 +90,10 @@ void VksGraphicPipeline::__addRenderPass(VksRenderPass *renderPass)
     m_graphicPipelineInfo.subpass = 0;
 }
 
-void VksGraphicPipeline::createGraphicPipeline()
+void VksGraphicPipeline::__createGraphicPipeline()
 {
+    if( m_graphicPipeline != VK_NULL_HANDLE )
+        return;
     VkPipelineRasterizationStateCreateInfo rasterizationState = {};
     rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
@@ -135,10 +139,4 @@ void VksGraphicPipeline::createGraphicPipeline()
 void VksGraphicPipeline::setSubpassIndex(uint32_t subpassIndex)
 {
     m_graphicPipelineInfo.subpass = subpassIndex;
-}
-
-void VksGraphicPipeline::setViewport(const VkViewport &viewport, const VkRect2D& scissor )
-{
-    m_viewport = viewport;
-    m_scissor = scissor;
 }

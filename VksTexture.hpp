@@ -16,31 +16,36 @@ class VksTexture : protected VkEngine
 {
     
 public:
+    
+    ~VksTexture();
+    
     static std::shared_ptr<VksTexture> createEmptyTexture( uint32_t width, uint32_t height, VkFormat format,
                                                VkImageLayout imageLayout, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                                           VkImageAspectFlags aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT);
     
     static std::shared_ptr<VksTexture> createFromFile( const char* filePath, VkImageUsageFlags usageFlags, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_GENERAL );
     
+    static std::shared_ptr<VksTexture> createFromVkImage( VkImage vkImage, uint32_t width, uint32_t height, VkFormat format, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_GENERAL, VkImageAspectFlags aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT );
+    
     void transferImageLayout( VkImageLayout oldLayout, VkImageLayout newLayout, VkAccessFlags srcAccessFlag,
                              VkAccessFlags dstAccessFlag, VkPipelineStageFlags srcStageFlag, VkPipelineStageFlags dstStageFlag );
     
-    const VkImage& getImage()
+    const VkImage& getImage() const
     {
         return m_texture;
     }
     
-    const VkImageView& getImageView()
+    const VkImageView& getImageView() const
     {
         return m_textureView;
     }
     
-    const VkSampler& getSampler()
+    const VkSampler& getSampler() const
     {
         return m_textureSampler;
     }
     
-    const VkDescriptorImageInfo& getDesscriptor()
+    const VkDescriptorImageInfo& getDesscriptor() const
     {
         return m_descriptor;
     }
@@ -66,6 +71,7 @@ private:
     uint32_t m_width;
     uint32_t m_height;
     VkImageAspectFlags m_aspectFlag;
+    bool m_ownTexture;
     
 private:
     void __createImage( uint32_t width, uint32_t height, VkFormat format, VkImageLayout imageLayout, VkImageUsageFlags usage, VkMemoryPropertyFlags properties );

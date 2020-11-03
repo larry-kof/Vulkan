@@ -75,12 +75,27 @@ std::vector<VkCommandBuffer> VksCommand::createPrimaryBuffer(int size)
     return buffers;
 }
 
+VkCommandBuffer VksCommand::createPrimaryBuffer()
+{
+    VkCommandBufferAllocateInfo commandBufferInfo = {};
+    commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    commandBufferInfo.commandPool = m_commandPool;
+    commandBufferInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    commandBufferInfo.commandBufferCount = 1;
+    
+    VkCommandBuffer commanBuffer;
+    
+    VK_CHECK( vkAllocateCommandBuffers(m_logicDevice, &commandBufferInfo, &commanBuffer) )
+    
+    return commanBuffer;
+}
+
 VkCommandPool VksCommand::getCommandPool() const
 {
     return m_commandPool;
 }
 
-void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer, const std::shared_ptr<VksGraphicPipeline> graphicPipeline )
+void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer)
 {
     VkCommandBufferBeginInfo bufferBeginInfo = {};
     bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -103,7 +118,7 @@ void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shar
     renderBeginInfo.framebuffer = dstFramebuffer->getVkFramebuffer();
     renderBeginInfo.renderArea.offset = {0,0};
     renderBeginInfo.renderArea.extent = renderSize;
-    renderBeginInfo.renderPass = graphicPipeline->getVkRenderPass();
+    renderBeginInfo.renderPass = dstFramebuffer->getVkRenderPass();
     
     vkCmdBeginRenderPass(commandBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     VkViewport viewport = {  };
@@ -122,7 +137,6 @@ void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shar
     VkRect2D scissors[] = { scissor };
     
     vkCmdSetScissor(commandBuffer, 0, 1, scissors);
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicPipeline->getVkGraphicPipele());
 }
 
 void VksCommand::endRenderPass(VkCommandBuffer commandBuffer)

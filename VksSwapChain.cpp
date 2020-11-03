@@ -1,4 +1,5 @@
 #include "VksSwapChain.hpp"
+#include <iostream>
 #include <array>
 
 const int MAX_FLIGHT_IMAGE_COUNT = 2;
@@ -7,7 +8,8 @@ VksSwapChain::VksSwapChain()
     : VkEngine()
 {
     __createSwapChain();
-    __createImageViews();
+    __createColorTextures();
+    __createDepthTextures();
     __createRenderPass();
     __createFbs();
     __createSemaphores();
@@ -22,19 +24,9 @@ VksSwapChain::~VksSwapChain()
         vkDestroySemaphore(m_logicDevice, m_renderFinishedSemaphore[i], nullptr);
         vkDestroyFence(m_logicDevice, m_fence[i], nullptr);
     }
-#if 0
-    for(int i=0; i<m_swapChainFramebuffers.size(); i++)
-    {
-        vkDestroyFramebuffer(m_logicDevice, m_swapChainFramebuffers[i], nullptr);
-    }
-
-    vkDestroyRenderPass(m_logicDevice, m_renderPass, nullptr);
-#endif
-    for(int i=0; i<m_swapChainImageViews.size(); i++)
-    {
-        vkDestroyImageView(m_logicDevice, m_swapChainImageViews[i], nullptr);
-    }
-    m_swapChainImageViews.clear();
+    m_swapChainColorTextures.clear();
+    m_swapChainFramebuffers.clear();
+    
     vkDestroySwapchainKHR(m_logicDevice, m_swapchain, nullptr);
 }
 
@@ -55,30 +47,9 @@ std::shared_ptr<VksFramebuffer> VksSwapChain::getSwapChainFrameBuffer(int index)
 
 void VksSwapChain::__createFbs()
 {
-#if 0
-    m_swapChainFramebuffers.resize( m_swapChainImages.size() );
-    for(int i =0; i<m_swapChainFramebuffers.size(); i++)
-    {
-        VkFramebufferCreateInfo info = {
-            .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-            .flags = 0,
-            .renderPass = m_renderPass,
-            .attachmentCount = 1,
-            .pAttachments = &m_swapChainImageViews[i],
-            .width = m_extent2D.width,
-            .height = m_extent2D.height,
-            .layers = 1
-        };
-
-        VK_CHECK( vkCreateFramebuffer(m_logicDevice, &info, nullptr, &m_swapChainFramebuffers[i]) )
-        
-    }
-#endif
-    
-    for( int i = 0; i < m_swapChainImageViews.size(); i++ )
-    {
-        auto framebufferPtr = std::make_shared<VksFramebuffer>( m_swapChainImageViews[i], m_extent2D.width, m_extent2D.height, m_renderPass );
-        m_swapChainFramebuffers.push_back( framebufferPtr );
+    for (int i = 0; i < m_swapChainColorTextures.size(); i++) {
+        auto frameBufferPtr = std::make_shared<VksFramebuffer>( m_swapChainColorTextures[i], m_swapChainDepthTexture,  m_renderPass );
+        m_swapChainFramebuffers.push_back( frameBufferPtr );
     }
 }
 
@@ -133,29 +104,22 @@ void VksSwapChain::__createSwapChain()
     vkGetSwapchainImagesKHR(m_logicDevice, m_swapchain, &imagesCount, m_swapChainImages.data());
 }
 
-void VksSwapChain::__createImageViews()
+void VksSwapChain::__createColorTextures()
 {
-    m_swapChainImageViews.resize(m_swapChainImages.size());
-    for( int i = 0; i < m_swapChainImageViews.size(); i++ )
+    m_swapChainColorTextures.resize(m_swapChainImages.size());
+    for( int i = 0; i < m_swapChainImages.size(); i++ )
     {
-        VkImageViewCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.format = m_format.format;
-        createInfo.image = m_swapChainImages[i];
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        
-        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
-        createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
-        
-        vkCreateImageView(m_logicDevice, &createInfo, nullptr, &m_swapChainImageViews[i]);
+        auto colorTexture = VksTexture::createFromVkImage(m_swapChainImages[i], m_extent2D.width, m_extent2D.height, m_format.format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+
+        m_swapChainColorTextures[i] = colorTexture;
     }
+}
+
+void VksSwapChain::__createDepthTextures()
+{
+    auto depthTexture = VksTexture::createEmptyTexture(m_extent2D.width, m_extent2D.height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT );
+        
+    m_swapChainDepthTexture = depthTexture;
 }
 
 void VksSwapChain::__createRenderPass()
@@ -213,7 +177,11 @@ void VksSwapChain::__createRenderPass()
 
     VK_CHECK( vkCreateRenderPass(m_logicDevice, &renderPassInfo, nullptr, &m_renderPass) )
 #endif
-    m_renderPass = VksRenderPass::createSimpleColorAttachmentRenderPass( m_format.format );
+//    m_renderPass = VksRenderPass::createSimpleColorAttachmentRenderPass( m_format.format );
+    m_renderPass = VksRenderPass::createColorDepthRenderPass(m_format.format,
+                                                             VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                             VK_FORMAT_D32_SFLOAT_S8_UINT,
+                                                             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 }
 
 void VksSwapChain::__chooseExtent2D()
@@ -303,23 +271,18 @@ void VksSwapChain::__createSemaphores()
     
 }
 
-std::shared_ptr<VksRenderPass> VksSwapChain::getSwapChainRenderPass()
-{
-    return m_renderPass;
-}
-
-void VksSwapChain::drawFrames(const std::vector<VkCommandBuffer> &commandBuffers)
+void VksSwapChain::drawFrames()
 {
     while( !glfwWindowShouldClose( m_window ) )
     {
         glfwPollEvents();
-        __drawFrames( commandBuffers );
+        __drawFrames();
     }
     
     vkDeviceWaitIdle(m_logicDevice);
 }
 
-void VksSwapChain::__drawFrames(const std::vector<VkCommandBuffer> &commandBuffers)
+void VksSwapChain::__drawFrames()
 {
     uint32_t imageIndex = 0;
     vkWaitForFences(m_logicDevice, 1, &m_fence[ m_currentFrame ], VK_TRUE, UINT_MAX);
@@ -337,9 +300,10 @@ void VksSwapChain::__drawFrames(const std::vector<VkCommandBuffer> &commandBuffe
     VkPipelineStageFlags waitStage[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitDstStageMask = waitStage;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+    submitInfo.pWaitDstStageMask = waitStage;
+    VkCommandBuffer commonBuffer = m_swapChainFramebuffers.at(imageIndex)->getVkCommandBuffer();
+    submitInfo.pCommandBuffers = &commonBuffer;
     VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphore[m_currentFrame]};
     
     submitInfo.signalSemaphoreCount = 1;

@@ -10,12 +10,11 @@ public:
     virtual ~VksSwapChain();
     int getSwapChainCount();
     
-    std::shared_ptr<VksRenderPass> getSwapChainRenderPass();
     VkExtent2D getRenderAreaSize();
     
     std::shared_ptr<VksFramebuffer> getSwapChainFrameBuffer( int index );
     
-    void drawFrames( const std::vector<VkCommandBuffer>& commandBuffers );
+    void drawFrames();
 
 private:
     VkSwapchainKHR m_swapchain;
@@ -23,10 +22,9 @@ private:
     VkExtent2D m_extent2D;
     VkPresentModeKHR m_presentMode;
     std::vector<VkImage> m_swapChainImages;
-    std::vector<VkImageView> m_swapChainImageViews;
-//    VkRenderPass m_renderPass;
+    std::vector<std::shared_ptr<VksTexture>> m_swapChainColorTextures;
+    std::shared_ptr<VksTexture> m_swapChainDepthTexture;
     std::shared_ptr<VksRenderPass> m_renderPass;
-//    std::vector<VkFramebuffer> m_swapChainFramebuffers;
     std::vector<std::shared_ptr<VksFramebuffer>> m_swapChainFramebuffers;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphore;
@@ -38,11 +36,12 @@ private:
     void __chooseFormat();
     void __chooseExtent2D();
     void __createSwapChain();
-    void __createImageViews();
+    void __createColorTextures();
+    void __createDepthTextures();
     void __createRenderPass();
     void __createFbs();
     void __createSemaphores();
-    void __drawFrames( const std::vector<VkCommandBuffer>& commandBuffers );
+    void __drawFrames();
 };
 
 #endif

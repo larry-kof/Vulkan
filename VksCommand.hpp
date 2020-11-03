@@ -16,12 +16,14 @@ public:
     VkCommandBuffer beginOnceSubmitBuffer();
     void endOnceSubmitBuffer( VkCommandBuffer commandbuffer );
     std::vector<VkCommandBuffer> createPrimaryBuffer(int size);
+    
+    VkCommandBuffer createPrimaryBuffer();
 
     ~VksCommand();
 
     VkCommandPool getCommandPool() const;
     
-    void beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer, const std::shared_ptr<VksGraphicPipeline> graphicPipeline );
+    void beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer );
     void endRenderPass( VkCommandBuffer commandBuffer );
     
     void bindVertexBuffer( VkCommandBuffer commandBuffer, const std::shared_ptr<VksBuffer> vertexBuffer );

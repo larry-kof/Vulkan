@@ -3,10 +3,11 @@
 
 #include "VkEngine.hpp"
 #include "VksBuffer.hpp"
+#include "VksTexture.hpp"
 #include <tuple>
 #include <vector>
 
-class VksShaderProgram: protected VkEngine
+class VksShaderProgram: protected VkEngine, public std::enable_shared_from_this<VksShaderProgram>
 {
 public:
     using DescriptorPool = std::tuple< VkDescriptorType, uint32_t >;
@@ -38,6 +39,7 @@ public:
     void initialize( const std::vector<SetLayoutBinding>& layoutBindings, const std::vector<DescriptorPool>& poolValues, int swapChainCount );
 
     void updateShaderUniform( int index, uint32_t binding, VkDescriptorType type, const VksBuffer& buffer );
+    void updateSampler( int index, uint32_t binding, VkDescriptorType type, const VksTexture& texture );
     
     const std::vector<VkPipelineShaderStageCreateInfo>& getShaderStageCreateInfo();
     

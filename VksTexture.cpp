@@ -13,7 +13,19 @@
 #include "stb_image.h"
 
 VksTexture::VksTexture()
+    :m_ownTexture( true )
 {
+}
+
+VksTexture::~VksTexture()
+{
+    vkDestroyImageView(m_logicDevice, m_textureView, nullptr);
+    vkDestroySampler(m_logicDevice, m_textureSampler, nullptr);
+    if( m_ownTexture )
+    {
+        vkFreeMemory(m_logicDevice, m_textureMemory, nullptr);
+        vkDestroyImage(m_logicDevice, m_texture, nullptr);
+    }
 }
 
 std::shared_ptr<VksTexture> VksTexture::createEmptyTexture(uint32_t width, uint32_t height, VkFormat format, VkImageLayout imageLayout, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropties,
@@ -83,10 +95,31 @@ std::shared_ptr<VksTexture> VksTexture::createFromFile(const char *filePath, VkI
     
     vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->getVkBuffer(), texture->m_texture, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
     
+    m_graphicCommand->endOnceSubmitBuffer(commandBuffer);
     if( imageLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL )
         texture->__transferImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageLayout);
-    m_graphicCommand->endOnceSubmitBuffer(commandBuffer);
     
+    texture->__createImageView();
+    texture->__createSampler();
+    
+    texture->m_descriptor.imageLayout = imageLayout;
+    texture->m_descriptor.imageView = texture->m_textureView;
+    texture->m_descriptor.sampler = texture->m_textureSampler;
+    
+    return texture;
+}
+
+std::shared_ptr<VksTexture> VksTexture::createFromVkImage(VkImage vkImage, uint32_t width, uint32_t height, VkFormat format,  VkImageLayout imageLayout, VkImageAspectFlags aspectFlag)
+{
+    std::shared_ptr<VksTexture> texture( new VksTexture() );
+    
+    texture->m_texture = vkImage;
+    texture->m_ownTexture = false;
+    texture->m_width = width;
+    texture->m_height = height;
+    texture->m_format = format;
+    texture->m_aspectFlag = aspectFlag;
+
     texture->__createImageView();
     texture->__createSampler();
     
@@ -198,7 +231,7 @@ void VksTexture::transferImageLayout( VkImageLayout oldLayout, VkImageLayout new
 void VksTexture::__transferImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout)
 {
     VkImageMemoryBarrier imageBarrier = {};
-    imageBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     imageBarrier.oldLayout = oldLayout;
     imageBarrier.newLayout = newLayout;
     imageBarrier.image = m_texture;
@@ -206,7 +239,7 @@ void VksTexture::__transferImageLayout(VkImageLayout oldLayout, VkImageLayout ne
     imageBarrier.dstAccessMask = 0;
     imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    imageBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageBarrier.subresourceRange.aspectMask = m_aspectFlag;
     imageBarrier.subresourceRange.baseArrayLayer = 0;
     imageBarrier.subresourceRange.baseMipLevel = 0;
     imageBarrier.subresourceRange.layerCount = 1;
@@ -260,6 +293,11 @@ void VksTexture::__transferImageLayout(VkImageLayout oldLayout, VkImageLayout ne
     {
         imageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         dstStageFlag = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    else if( newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL )
+    {
+        imageBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        dstStageFlag = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     }
     
     
