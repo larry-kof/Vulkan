@@ -81,7 +81,7 @@ VksShaderProgram::~VksShaderProgram()
     }
 }
 
-void VksShaderProgram::__initDescPool(const std::vector<DescriptorPool>& poolValues, int swapChainCount )
+void VksShaderProgram::__initDescPool(const std::vector<DescriptorPoolInfo>& poolValues, int swapChainCount )
 {
     VkDescriptorPoolCreateInfo poolCreateInfo = {};
     poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -90,10 +90,12 @@ void VksShaderProgram::__initDescPool(const std::vector<DescriptorPool>& poolVal
     memset( poolSize.data(), 0, sizeof( VkDescriptorPoolSize ) * poolSize.size() );
     for( int i = 0; i < poolValues.size(); i++ )
     {
-        DescriptorPool poolSizeInfo = poolValues[i];
+        DescriptorPoolInfo poolSizeInfo = poolValues[i];
         VkDescriptorType type;
         uint32_t descriptorCount;
-        std::tie(type, descriptorCount) = poolSizeInfo;
+//        std::tie(type, descriptorCount) = poolSizeInfo;
+        type = poolSizeInfo.shaderVarType;
+        descriptorCount = poolSizeInfo.varCount;
 
         poolSize[i].type = type;
         poolSize[i].descriptorCount = descriptorCount;
@@ -107,21 +109,21 @@ void VksShaderProgram::__initDescPool(const std::vector<DescriptorPool>& poolVal
     VK_CHECK( vkCreateDescriptorPool( m_logicDevice, &poolCreateInfo, nullptr, &m_descPool ) );
 }
 
-void VksShaderProgram::__initSetLayout( const std::vector<SetLayoutBinding>& setLayoutBinds, int swapChainCount )
+void VksShaderProgram::__initSetLayout( const std::vector<UniformLayoutBinding>& setLayoutBinds, int swapChainCount )
 {
     std::vector<VkDescriptorSetLayoutBinding> uniformBindings( setLayoutBinds.size() );
     memset( uniformBindings.data(), 0, sizeof(VkDescriptorSetLayoutBinding) * uniformBindings.size() );
     for(int i = 0; i < setLayoutBinds.size(); i++)
     {
-        uint32_t binding;
-        VkDescriptorType type;
-        VkShaderStageFlags stageFlags;
-        std::tie( binding, type, stageFlags ) = setLayoutBinds[i];
+//        uint32_t binding;
+//        VkDescriptorType type;
+//        VkShaderStageFlags stageFlags;
+//        std::tie( binding, type, stageFlags ) = setLayoutBinds[i];
 
-        uniformBindings[i].binding = binding;
+        uniformBindings[i].binding = setLayoutBinds[i].binding;
         uniformBindings[i].descriptorCount = 1;
-        uniformBindings[i].descriptorType = type;
-        uniformBindings[i].stageFlags = stageFlags;
+        uniformBindings[i].descriptorType = setLayoutBinds[i].shaderVarType;
+        uniformBindings[i].stageFlags = setLayoutBinds[i].shaderStageFlags;
         uniformBindings[i].pImmutableSamplers = nullptr;
     }
 
@@ -144,7 +146,7 @@ void VksShaderProgram::__initSetLayout( const std::vector<SetLayoutBinding>& set
     VK_CHECK( vkAllocateDescriptorSets(m_logicDevice, &setAllocInfo, m_descSets.data()) )
 }
 
-void VksShaderProgram::initialize(  const std::vector<SetLayoutBinding>& layoutBindings, const std::vector<DescriptorPool>& poolValues, int swapChainCount )
+void VksShaderProgram::initialize(  const std::vector<UniformLayoutBinding>& layoutBindings, const std::vector<DescriptorPoolInfo>& poolValues, int swapChainCount )
 {
     __initDescPool( poolValues, swapChainCount );
     __initSetLayout( layoutBindings, swapChainCount );

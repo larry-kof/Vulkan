@@ -14,6 +14,7 @@ public:
     
     std::shared_ptr<VksFramebuffer> getSwapChainFrameBuffer( int index );
     
+    void drawFrames( std::function<void(float timeStamp)> );
     void drawFrames();
 
 private:

@@ -7,12 +7,48 @@
 #include <tuple>
 #include <vector>
 
+
 class VksShaderProgram: protected VkEngine, public std::enable_shared_from_this<VksShaderProgram>
 {
 public:
-    using DescriptorPool = std::tuple< VkDescriptorType, uint32_t >;
-    using SetLayoutBinding = std::tuple<uint32_t, VkDescriptorType, VkShaderStageFlags>;
+//    using DescriptorPool = std::tuple< VkDescriptorType, uint32_t >;
+//    using SetLayoutBinding = std::tuple<uint32_t, VkDescriptorType, VkShaderStageFlags>;
 
+    class DescriptorPoolInfo
+    {
+    public:
+        VkDescriptorType shaderVarType;
+        uint32_t varCount;
+        
+        DescriptorPoolInfo()
+        : shaderVarType( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER )
+        , varCount( 0 )
+        {}
+        
+        DescriptorPoolInfo( VkDescriptorType type, uint32_t count )
+        : shaderVarType( type )
+        , varCount( count )
+        {}
+    };
+    
+    class UniformLayoutBinding
+    {
+    public:
+        uint32_t binding;
+        VkDescriptorType shaderVarType;
+        VkShaderStageFlags shaderStageFlags;
+        
+        UniformLayoutBinding()
+        : binding( 0 ), shaderVarType( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER )
+        , shaderStageFlags( VK_SHADER_STAGE_ALL )
+        {}
+        
+        UniformLayoutBinding( uint32_t binding, VkDescriptorType type, VkShaderStageFlags shaderStage )
+        : binding( binding ), shaderVarType( type ), shaderStageFlags( shaderStage )
+        {}
+    };
+    
+    
 protected:
     VkShaderModule m_vertexShader = VK_NULL_HANDLE;
     VkShaderModule m_fragShader = VK_NULL_HANDLE;
@@ -27,8 +63,8 @@ protected:
     bool m_inited = false;
 protected:
     VkShaderModule __createShaderModule( const std::vector<char>& code );
-    void __initDescPool( const std::vector<DescriptorPool>& poolValue, int swapChainCount);
-    void __initSetLayout( const std::vector<SetLayoutBinding>& setLayoutBinding, int swapChainCount );
+    void __initDescPool( const std::vector<DescriptorPoolInfo>& poolValue, int swapChainCount);
+    void __initSetLayout( const std::vector<UniformLayoutBinding>& setLayoutBinding, int swapChainCount );
 public:
     VksShaderProgram( const std::vector<char>& vertexCode, const std::vector<char>& fragCode );
     VksShaderProgram( const std::string& vertexFilePath, const std::string& fragFilePath);
@@ -36,7 +72,7 @@ public:
     VksShaderProgram( const std::string& computeFilePath );
     ~VksShaderProgram();
 
-    void initialize( const std::vector<SetLayoutBinding>& layoutBindings, const std::vector<DescriptorPool>& poolValues, int swapChainCount );
+    void initialize( const std::vector<UniformLayoutBinding>& layoutBindings, const std::vector<DescriptorPoolInfo>& poolValues, int swapChainCount );
 
     void updateShaderUniform( int index, uint32_t binding, VkDescriptorType type, const VksBuffer& buffer );
     void updateSampler( int index, uint32_t binding, VkDescriptorType type, const VksTexture& texture );

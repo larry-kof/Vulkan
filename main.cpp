@@ -10,8 +10,8 @@ extern int depthDemo( VksSwapChain& swapChain );
 int main()
 {
     VksSwapChain swapChain;
-//    int ret = triangleDemo( swapChain );
-    int ret = textureDemo( swapChain );
+    int ret = triangleDemo( swapChain );
+//    int ret = textureDemo( swapChain );
 //    int ret = depthDemo( swapChain );
     return ret;
 }

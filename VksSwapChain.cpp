@@ -1,6 +1,7 @@
 #include "VksSwapChain.hpp"
 #include <iostream>
 #include <array>
+#include <chrono>
 
 const int MAX_FLIGHT_IMAGE_COUNT = 2;
 
@@ -269,6 +270,21 @@ void VksSwapChain::__createSemaphores()
         VK_CHECK( vkCreateFence(m_logicDevice, &fenceInfo, nullptr, &m_fence[i]) )
     }
     
+}
+
+void VksSwapChain::drawFrames( std::function<void (float timeStamp)> callback)
+{
+    while( !glfwWindowShouldClose( m_window ) )
+    {
+        auto start = std::chrono::system_clock::now();
+        glfwPollEvents();
+        __drawFrames();
+        auto end = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast< std::chrono::milliseconds>(end - start);
+        callback( duration.count() );
+    }
+    
+    vkDeviceWaitIdle(m_logicDevice);
 }
 
 void VksSwapChain::drawFrames()

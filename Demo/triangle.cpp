@@ -34,11 +34,14 @@ int triangleDemo( VksSwapChain& swapChain )
         std::shared_ptr<VksShaderProgram> shaderProgram( new VksShaderProgram( std::string("shaders/simpleVert.spv"),
                                                                               std::string("shaders/simpleFrag.spv") ) );
         
-        std::vector<VksShaderProgram::SetLayoutBinding> layoutBindings;
-        std::vector<VksShaderProgram::DescriptorPool> descPools;
+        std::vector<VksShaderProgram::UniformLayoutBinding> layoutBindings;
+        std::vector<VksShaderProgram::DescriptorPoolInfo> descPools;
         
-        descPools.push_back( std::make_tuple( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, swapChain.getSwapChainCount() ) );
-        layoutBindings.push_back( std::make_tuple( 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT ) );
+        descPools.push_back( VksShaderProgram::DescriptorPoolInfo( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, swapChain.getSwapChainCount() ) );
+        layoutBindings.push_back( VksShaderProgram::UniformLayoutBinding( 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT ) );
+        
+//        descPools.push_back( std::make_tuple( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, swapChain.getSwapChainCount() ) );
+//        layoutBindings.push_back( std::make_tuple( 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT ) );
         
         shaderProgram->initialize(layoutBindings, descPools, swapChain.getSwapChainCount());
         
