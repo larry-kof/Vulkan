@@ -34,7 +34,7 @@ std::optional<uint32_t> VksBuffer::__findMemoryType(uint32_t typeFilter, VkMemor
 
 std::shared_ptr<VksBuffer> VksBuffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags flags)
 {
-    auto buffer = std::make_shared<VksBuffer>();
+    std::shared_ptr<VksBuffer> buffer( new VksBuffer );
 
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

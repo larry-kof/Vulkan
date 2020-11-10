@@ -19,13 +19,20 @@ public:
     static std::shared_ptr<VksRenderPass> createSimpleColorAttachmentRenderPass( VkFormat colorFormat );
     static std::shared_ptr<VksRenderPass> createColorDepthRenderPass( VkFormat colorFormat, VkImageLayout colorImageLayout, VkFormat depthFormat, VkImageLayout depthImageLayout );
     
-    void setAttachmentDescriptors(const std::vector<VkAttachmentDescription> &attachDescs);
-    void addAllClearOpAttachmentDescriptor(VkFormat attachFormat, VkImageLayout finalImagelayout);
-    
+    void addColorAttachment(VkFormat attachFormat, VkImageLayout finalImagelayout);
+    void addDepthAttachment(VkFormat attachFormat, VkImageLayout imageLayout);
+    void addSubpassDependency( const std::vector<VkSubpassDependency>& dependencies );
+    void createRenderPass();
+
     VkRenderPass getVkRenderPass();
 private:
     VkRenderPass m_renderPass;
-    std::vector<VkAttachmentDescription> m_attechDescs;
+    std::vector<VkAttachmentDescription> m_attachDescs;
+    std::vector<VkAttachmentReference> m_colorRefs;
+    VkAttachmentReference m_depthRef;
+ 
+    VkSubpassDescription m_subpassDesc;
+    std::vector<VkSubpassDependency> m_dependencies;
 };
 
 #endif /* VksRenderPass_hpp */

@@ -10,8 +10,11 @@
 #include <array>
 
 VksRenderPass::VksRenderPass()
-:VkEngine(), m_renderPass( VK_NULL_HANDLE )
-{}
+:VkEngine(), m_renderPass( VK_NULL_HANDLE ), m_subpassDesc({} )
+{
+    m_subpassDesc.flags = 0;
+    m_subpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+}
 
 VksRenderPass::~VksRenderPass()
 {
@@ -157,13 +160,8 @@ std::shared_ptr<VksRenderPass> VksRenderPass::createColorDepthRenderPass(VkForma
     return renderPass;
 }
 
-void VksRenderPass::setAttachmentDescriptors(const std::vector<VkAttachmentDescription> &attachDescs)
-{
-    m_attechDescs.resize( attachDescs.size() );
-    memcpy(m_attechDescs.data(), attachDescs.data(), sizeof(VkAttachmentDescription) * attachDescs.size() );
-}
 
-void VksRenderPass::addAllClearOpAttachmentDescriptor(VkFormat attachFormat, VkImageLayout finalImagelayout)
+void VksRenderPass::addColorAttachment(VkFormat attachFormat, VkImageLayout finalImagelayout)
 {
     VkAttachmentDescription attachment = {};
     attachment.format = attachFormat;
@@ -176,7 +174,60 @@ void VksRenderPass::addAllClearOpAttachmentDescriptor(VkFormat attachFormat, VkI
     attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     
-    m_attechDescs.push_back( attachment );
+    VkAttachmentReference ref = {};
+    ref.layout = finalImagelayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : finalImagelayout;
+    ref.attachment = m_attachDescs.size();
+    
+    m_attachDescs.push_back( attachment );
+    m_colorRefs.push_back( ref );
+    
+    m_subpassDesc.colorAttachmentCount = m_colorRefs.size();
+    m_subpassDesc.pColorAttachments = m_colorRefs.data();
+}
+
+void VksRenderPass::addDepthAttachment(VkFormat attachFormat, VkImageLayout imageLayout)
+{
+    VkAttachmentDescription attachment = {};
+    attachment.format = attachFormat;
+    attachment.flags = 0;
+    attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachment.finalLayout = imageLayout;
+    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+    
+    VkAttachmentReference ref = {};
+    ref.attachment = m_attachDescs.size();
+    ref.layout = imageLayout;
+    
+    m_depthRef = ref;
+    m_attachDescs.push_back( attachment );
+    
+    m_subpassDesc.pDepthStencilAttachment = &m_depthRef;
+}
+
+void VksRenderPass::addSubpassDependency( const std::vector<VkSubpassDependency>& dependencies )
+{
+    m_dependencies = dependencies;
+}
+
+void VksRenderPass::createRenderPass()
+{
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.attachmentCount = m_attachDescs.size();
+    renderPassInfo.dependencyCount = m_dependencies.size();
+    renderPassInfo.pAttachments = m_attachDescs.data();
+    renderPassInfo.pDependencies = m_dependencies.data();
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &m_subpassDesc;
+    
+    VkRenderPass vkRenderPass = VK_NULL_HANDLE;
+    vkCreateRenderPass(m_logicDevice, &renderPassInfo, nullptr, &vkRenderPass );
+    
+    m_renderPass = vkRenderPass;
 }
 
 VkRenderPass VksRenderPass::getVkRenderPass()
