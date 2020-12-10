@@ -14,9 +14,12 @@ public:
     
     std::shared_ptr<VksFramebuffer> getSwapChainFrameBuffer( int index );
     
-    void drawFrames( std::function<void(float timeStamp)> );
+    void drawFrames( std::function<void (const std::vector<VkSemaphore>& waitSemas, std::vector<VkSemaphore>& signalSemas,std::vector<VkPipelineStageFlags>& nextStage)> submitWork,
+                    std::function<void( int )> drawTime);
+    
     void drawFrames();
-
+    
+    void drawFrames( std::function<void (int)> drawTime );
 private:
     VkSwapchainKHR m_swapchain;
     VkSurfaceFormatKHR m_format;
@@ -42,7 +45,8 @@ private:
     void __createRenderPass();
     void __createFbs();
     void __createSemaphores();
-    void __drawFrames();
+    void __drawFrames( std::vector< VkSemaphore >& waitSemas, std::vector<VkPipelineStageFlags>& waitStages,
+                      std::vector<VkSemaphore>& signalSemas);
 };
 
 #endif

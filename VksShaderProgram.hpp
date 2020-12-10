@@ -81,7 +81,7 @@ public:
     
 //    VkDescriptorSetLayout getDescriptorSetLayout();
     VkPipelineLayout getPipelineLayout();
-    VkDescriptorSet getDescriptorSet( int index );
+    VkDescriptorSet getDescriptorSet( int index = 0 );
 private:
     std::optional<std::vector<char> > __readShaderFile( const char* path );
 };

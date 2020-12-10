@@ -44,13 +44,15 @@ int depthDemo( VksSwapChain& swapChain )
         std::shared_ptr<VksShaderProgram> shaderProgram( new VksShaderProgram( std::string("shaders/simpleVert.spv"),
                                                                               std::string("shaders/simpleFrag.spv") ) );
         
-        std::vector<VksShaderProgram::SetLayoutBinding> layoutBindings;
-        std::vector<VksShaderProgram::DescriptorPool> descPools;
+        std::vector<VksShaderProgram::UniformLayoutBinding> uniformLayouts;
+        std::vector<VksShaderProgram::DescriptorPoolInfo> descPools;
         
-        descPools.push_back( std::make_tuple( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, swapChain.getSwapChainCount() ) );
-        layoutBindings.push_back( std::make_tuple( 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT ) );
+        descPools.push_back( VksShaderProgram::DescriptorPoolInfo( VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                                                  swapChain.getSwapChainCount()) );
         
-        shaderProgram->initialize(layoutBindings, descPools, swapChain.getSwapChainCount());
+        uniformLayouts.push_back( VksShaderProgram::UniformLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT) );
+
+        shaderProgram->initialize(uniformLayouts, descPools, swapChain.getSwapChainCount());
         
         auto uniformBuffer = VksBuffer::createBuffer(sizeof( glm::mat4 ), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         
@@ -102,7 +104,7 @@ int depthDemo( VksSwapChain& swapChain )
             frameBuffer->unBind();
         }
         
-        swapChain.drawFrames();
+        swapChain.drawFrames([](int msec) {} );
         
     }catch( const std::exception& e )
     {

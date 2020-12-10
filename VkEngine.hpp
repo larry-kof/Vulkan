@@ -52,6 +52,8 @@ protected:
     static VkQueue m_graphicsQueue;
     static VkQueue m_presentQueue;
     
+    static QueueFamilyIndices m_familyIndices;
+    
     static std::shared_ptr<VksCommand> m_graphicCommand;
 
     const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };

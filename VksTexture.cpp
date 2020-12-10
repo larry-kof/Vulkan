@@ -86,7 +86,7 @@ std::shared_ptr<VksTexture> VksTexture::createFromFile(const char *filePath, VkI
     region.imageSubresource.layerCount = 1;
     texture->m_aspectFlag = VK_IMAGE_ASPECT_COLOR_BIT;
 
-    region.imageExtent = {0,0,0};
+    region.imageOffset = {0,0,0};
     region.imageExtent = { (uint32_t)texWidth, (uint32_t)texHeight, 1 };
     
     VkCommandBuffer commandBuffer = m_graphicCommand->beginOnceSubmitBuffer();
@@ -208,7 +208,7 @@ void VksTexture::transferImageLayout( VkImageLayout oldLayout, VkImageLayout new
                          VkAccessFlags dstAccessFlag, VkPipelineStageFlags srcStageFlag, VkPipelineStageFlags dstStageFlag )
 {
     VkImageMemoryBarrier imageBarrier = {};
-    imageBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     imageBarrier.oldLayout = oldLayout;
     imageBarrier.newLayout = newLayout;
     imageBarrier.image = m_texture;
@@ -270,6 +270,11 @@ void VksTexture::__transferImageLayout(VkImageLayout oldLayout, VkImageLayout ne
         imageBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         srcStageFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     }
+    else if( oldLayout == VK_IMAGE_LAYOUT_GENERAL )
+    {
+        imageBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        srcStageFlag = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    }
     
     if( newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL )
     {
@@ -299,9 +304,94 @@ void VksTexture::__transferImageLayout(VkImageLayout oldLayout, VkImageLayout ne
         imageBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         dstStageFlag = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     }
+    else if( newLayout == VK_IMAGE_LAYOUT_GENERAL )
+    {
+        imageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dstStageFlag = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    }
     
     
     vkCmdPipelineBarrier(commandBuffer, srcStageFlag, dstStageFlag, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier );
     
     m_graphicCommand->endOnceSubmitBuffer(commandBuffer);
+}
+
+VkImageSubresourceRange VksTexture::getSubresourceRange()
+{
+    return { m_aspectFlag, 0, 1, 0, 1 };
+}
+
+void VksTexture::updateTexture(const char *data, VkDeviceSize dataSize, VkOffset2D imageOffset, VkExtent2D imageExtent)
+{
+    auto stagingBuffer = VksBuffer::createBuffer(dataSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    
+    void *pData = reinterpret_cast<void*>( const_cast<char*>(data) );
+    
+    stagingBuffer->copyHostDataToBuffer( pData, dataSize);
+    
+    auto commandBuffer = m_graphicCommand->beginOnceSubmitBuffer();
+    VkBufferImageCopy copyRegion = {};
+    
+    copyRegion.bufferImageHeight = 0;
+    copyRegion.bufferOffset = 0;
+    copyRegion.bufferRowLength = 0;
+    copyRegion.imageExtent = { imageExtent.width, imageExtent.height, 1 };
+    copyRegion.imageOffset = { imageOffset.x, imageOffset.y, 0 };
+    
+    copyRegion.imageSubresource.aspectMask = m_aspectFlag;
+    copyRegion.imageSubresource.mipLevel = 0;
+    copyRegion.imageSubresource.baseArrayLayer = 0;
+    copyRegion.imageSubresource.layerCount = 1;
+    
+    VkImageLayout oriLayout = m_descriptor.imageLayout;
+    
+    __transferImageLayout( m_descriptor.imageLayout , VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    m_descriptor.imageLayout  = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    
+    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->getVkBuffer(), m_texture, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+    m_graphicCommand->endOnceSubmitBuffer( commandBuffer );
+    
+    __transferImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, oriLayout);
+    
+    m_descriptor.imageLayout = oriLayout;
+    
+}
+
+void VksTexture::updateTexture(const std::shared_ptr<VksBuffer> &buffer, VkOffset2D imageOffset, VkExtent2D imageExtent)
+{
+    VkBufferImageCopy copyRegion = {};
+    
+    copyRegion.bufferImageHeight = 0;
+    copyRegion.bufferOffset = 0;
+    copyRegion.bufferRowLength = 0;
+    copyRegion.imageExtent = { imageExtent.width, imageExtent.height, 1 };
+    copyRegion.imageOffset = { imageOffset.x, imageOffset.y, 0 };
+    
+    copyRegion.imageSubresource.aspectMask = m_aspectFlag;
+    copyRegion.imageSubresource.mipLevel = 0;
+    copyRegion.imageSubresource.baseArrayLayer = 0;
+    copyRegion.imageSubresource.layerCount = 1;
+    
+    auto commandBuffer = m_graphicCommand->beginOnceSubmitBuffer();
+
+    __transferImageLayout( m_descriptor.imageLayout , VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    
+    vkCmdCopyBufferToImage(commandBuffer, buffer->getVkBuffer(), m_texture, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+    
+    __transferImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_descriptor.imageLayout);
+    
+    m_graphicCommand->endOnceSubmitBuffer( commandBuffer );
+}
+
+void VksTexture::updateTexture(const char* filePath)
+{
+    int texWidth = 0, texHeight = 0, texChannel = 0;
+    stbi_uc* pixel = stbi_load(filePath, &texWidth, &texHeight, &texChannel, STBI_rgb_alpha);
+    
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+    VkOffset2D offset = { 0,0 };
+    VkExtent2D imageExtent = { (uint32_t)texWidth, (uint32_t)texHeight };
+    
+    updateTexture( reinterpret_cast<const char*>( pixel ), imageSize, offset, imageExtent);
+    stbi_image_free( pixel );
 }

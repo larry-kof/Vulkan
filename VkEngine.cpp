@@ -12,6 +12,7 @@ GLFWwindow* VkEngine::m_window = nullptr;
 std::atomic_uint VkEngine::m_subCount = 0;
 VkQueue VkEngine::m_graphicsQueue = VK_NULL_HANDLE;
 VkQueue VkEngine::m_presentQueue = VK_NULL_HANDLE;
+QueueFamilyIndices VkEngine::m_familyIndices;
 std::shared_ptr<VksCommand> VkEngine::m_graphicCommand = nullptr;
 VkDebugUtilsMessengerEXT VkEngine::m_debugMessenger = VK_NULL_HANDLE;
 
@@ -245,11 +246,11 @@ void VkEngine::__createLogicDevice()
     VkPhysicalDeviceFeatures features = {};
     deviceInfo.pEnabledFeatures = &features;
 
-    QueueFamilyIndices indices = _findQueueFamily(m_physicalDevice);
+    m_familyIndices = _findQueueFamily(m_physicalDevice);
 
     std::set<int> uniqueQueueFamilies = {
-        indices.graphicsFamily.value(),
-        indices.presentFamily.value()
+        m_familyIndices.graphicsFamily.value(),
+        m_familyIndices.presentFamily.value()
     };
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -268,10 +269,10 @@ void VkEngine::__createLogicDevice()
 
     VK_CHECK( vkCreateDevice(m_physicalDevice, &deviceInfo, nullptr, &m_logicDevice) )
 
-    vkGetDeviceQueue(m_logicDevice, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
-    vkGetDeviceQueue(m_logicDevice, indices.presentFamily.value(), 0, &m_presentQueue);
+    vkGetDeviceQueue(m_logicDevice, m_familyIndices.graphicsFamily.value(), 0, &m_graphicsQueue);
+    vkGetDeviceQueue(m_logicDevice, m_familyIndices.presentFamily.value(), 0, &m_presentQueue);
     
-    __createGraphicCommand(indices);
+    __createGraphicCommand(m_familyIndices);
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {

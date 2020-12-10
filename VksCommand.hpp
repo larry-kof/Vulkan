@@ -8,6 +8,7 @@
 #include "VksGraphicPipeline.hpp"
 #include <vector>
 
+class VksBarrier;
 class VksCommand : protected VkEngine
 {
 public:
@@ -23,7 +24,7 @@ public:
 
     VkCommandPool getCommandPool() const;
     
-    void beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer );
+    void beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer, std::shared_ptr<VksBarrier> barrier = nullptr );
     void endRenderPass( VkCommandBuffer commandBuffer );
     
     void bindVertexBuffer( VkCommandBuffer commandBuffer, const std::shared_ptr<VksBuffer> vertexBuffer );

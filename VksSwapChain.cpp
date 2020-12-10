@@ -1,4 +1,7 @@
 #include "VksSwapChain.hpp"
+#include "VksTexture.hpp"
+#include "VksBuffer.hpp"
+#include "VksRenderPass.hpp"
 #include <iostream>
 #include <array>
 #include <chrono>
@@ -219,16 +222,45 @@ void VksSwapChain::__createSemaphores()
     
 }
 
-void VksSwapChain::drawFrames( std::function<void (float timeStamp)> callback)
+void VksSwapChain::drawFrames( std::function<void (const std::vector<VkSemaphore>& waitSemas, std::vector<VkSemaphore>& signalSemas,std::vector<VkPipelineStageFlags>& nextStage)> submitWork,
+                std::function<void( int )> drawTime)
 {
+    int timeStamp = 0;
+    std::vector<VkSemaphore> drawWait;
+    std::vector<VkSemaphore> submitWait;
+    std::vector<VkPipelineStageFlags> nextStages;
+    std::vector<VkSemaphore> drawSignal;
     while( !glfwWindowShouldClose( m_window ) )
     {
         auto start = std::chrono::system_clock::now();
         glfwPollEvents();
-        __drawFrames();
+        submitWork( submitWait, drawWait, nextStages );
+        submitWait.clear();
+        __drawFrames( drawWait, nextStages, submitWait );
         auto end = std::chrono::system_clock::now();
         auto duration = std::chrono::duration_cast< std::chrono::milliseconds>(end - start);
-        callback( duration.count() );
+        timeStamp = duration.count();
+        drawTime( timeStamp );
+        drawWait.clear();
+        nextStages.clear();
+    }
+    
+    vkDeviceWaitIdle(m_logicDevice);
+}
+
+void VksSwapChain::drawFrames(std::function<void (int)> drawTime)
+{
+    std::vector<VkSemaphore> drawWait;
+    std::vector<VkPipelineStageFlags> nextStages;
+    std::vector<VkSemaphore> drawSignal;
+    while( !glfwWindowShouldClose( m_window ) )
+    {
+        auto start = std::chrono::system_clock::now();
+        glfwPollEvents();
+        __drawFrames( drawWait, nextStages, drawSignal );
+        auto end = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast< std::chrono::milliseconds>(end - start);
+        drawTime( duration.count() );
     }
     
     vkDeviceWaitIdle(m_logicDevice);
@@ -236,48 +268,34 @@ void VksSwapChain::drawFrames( std::function<void (float timeStamp)> callback)
 
 void VksSwapChain::drawFrames()
 {
+    std::vector<VkSemaphore> drawWait;
+    std::vector<VkPipelineStageFlags> nextStages;
+    std::vector<VkSemaphore> drawSignal;
     while( !glfwWindowShouldClose( m_window ) )
     {
         glfwPollEvents();
-        __drawFrames();
+        __drawFrames( drawWait, nextStages, drawSignal );
     }
     
     vkDeviceWaitIdle(m_logicDevice);
 }
 
-void VksSwapChain::__drawFrames()
+void VksSwapChain::__drawFrames( std::vector< VkSemaphore >& waitSemas, std::vector<VkPipelineStageFlags>& waitStages,
+                                 std::vector<VkSemaphore>& signalSemas )
 {
     uint32_t imageIndex = 0;
-    vkWaitForFences(m_logicDevice, 1, &m_fence[ m_currentFrame ], VK_TRUE, UINT_MAX);
-    
+
     vkAcquireNextImageKHR(m_logicDevice, m_swapchain, UINT32_MAX, m_imageAvailableSemaphore[ m_currentFrame ], VK_NULL_HANDLE, &imageIndex);
-    if( m_imageFence[imageIndex] != VK_NULL_HANDLE )
-    {
-        vkWaitForFences(m_logicDevice, 1, &m_imageFence[imageIndex], VK_TRUE, UINT32_MAX);
-    }
-    m_imageFence[imageIndex] = m_fence[m_currentFrame];
+
+    std::vector<VkSemaphore> framebufferSignalSemas;
+    std::vector<VkSemaphore> framebufferWaitSemas( waitSemas );
+    framebufferWaitSemas.push_back( m_imageAvailableSemaphore[m_currentFrame] );
+    m_swapChainFramebuffers.at( imageIndex )->submitRender(framebufferWaitSemas, waitStages, framebufferSignalSemas);
     
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphore[m_currentFrame]};
-    VkPipelineStageFlags waitStage[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pWaitDstStageMask = waitStage;
-    VkCommandBuffer commonBuffer = m_swapChainFramebuffers.at(imageIndex)->getVkCommandBuffer();
-    submitInfo.pCommandBuffers = &commonBuffer;
-    VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphore[m_currentFrame]};
-    
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-    vkResetFences(m_logicDevice, 1, &m_fence[m_currentFrame]);
- 
-    VK_CHECK( vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, m_fence[m_currentFrame]) )
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
+    presentInfo.waitSemaphoreCount = framebufferSignalSemas.size();
+    presentInfo.pWaitSemaphores = framebufferSignalSemas.data();
     presentInfo.pImageIndices = &imageIndex;
     VkSwapchainKHR swapChains[] = { m_swapchain };
     presentInfo.pSwapchains = swapChains;
@@ -285,6 +303,8 @@ void VksSwapChain::__drawFrames()
     presentInfo.swapchainCount = 1;
     
     VK_CHECK( vkQueuePresentKHR(m_presentQueue, &presentInfo) )
+    signalSemas.clear();
+//    signalSemas.push_back( m_imageAvailableSemaphore[ m_currentFrame ] );
     
     m_currentFrame = (m_currentFrame+1) % MAX_FLIGHT_IMAGE_COUNT;
 }

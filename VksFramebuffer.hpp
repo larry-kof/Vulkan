@@ -11,10 +11,12 @@
 
 #include <stdio.h>
 #include "VkEngine.hpp"
-#include "VksTexture.hpp"
-#include "VksRenderPass.hpp"
-#include "VksGraphicPipeline.hpp"
 
+class VksBarrier;
+class VksTexture;
+class VksRenderPass;
+class VksGraphicPipeline;
+class VksBuffer;
 class VksFramebuffer : protected VkEngine, public std::enable_shared_from_this<VksFramebuffer>
 {
 public:
@@ -25,28 +27,15 @@ public:
     
     ~VksFramebuffer();
     
-    VkFramebuffer getVkFramebuffer()
-    {
-        return m_framebuffer;
-    }
-    
-    VkExtent2D getFramebufferSize()
-    {
-        VkExtent2D size = { m_width, m_height };
-        return size;
-    }
-    
-    const VkCommandBuffer getVkCommandBuffer()
-    {
-        return m_commandBuffer;
-    }
-    
-    VkRenderPass getVkRenderPass()
-    {
-        return m_rendePass->getVkRenderPass();
-    }
-    
-    void bind();
+    VkFramebuffer getVkFramebuffer();
+
+    VkExtent2D getFramebufferSize();
+
+    const VkCommandBuffer getVkCommandBuffer();
+
+    VkRenderPass getVkRenderPass();
+
+    void bind( std::shared_ptr<VksBarrier> barrier = nullptr );
     void unBind();
     
     void bindUniformSets( int setsIndex );
@@ -54,6 +43,9 @@ public:
     void bindIndexBuffer( const std::shared_ptr<VksBuffer>& indexBuffer );
     void draw( int vertexCount );
     void drawIndexed( int indexCount );
+    
+    void submitRender( std::vector<VkSemaphore>& waitSemaphores, std::vector<VkPipelineStageFlags>& waitStages,
+                      std::vector<VkSemaphore>& signalSemaphores );
     
 private:
     VkFramebuffer m_framebuffer;
@@ -63,6 +55,8 @@ private:
     std::shared_ptr<VksRenderPass> m_rendePass;
     std::shared_ptr<VksGraphicPipeline> m_graphicPipeline;
     VkCommandBuffer m_commandBuffer;
+    VkSemaphore m_renderComplete;
+    VkFence m_fence;
     uint32_t m_width;
     uint32_t m_height;
 };

@@ -12,10 +12,12 @@
 #include <stdio.h>
 #include "VkEngine.hpp"
 
+class VksBuffer;
 class VksTexture : protected VkEngine
 {
     
 public:
+    static constexpr bool value = true;
     
     ~VksTexture();
     
@@ -59,6 +61,23 @@ public:
     {
         return m_height;
     }
+    
+    VkFormat getFormat()
+    {
+        return m_format;
+    }
+    
+    VkImageSubresourceRange getSubresourceRange();
+
+    std::optional<uint32_t> getFamilyIndex()
+    {
+        return m_familyIndices.graphicsFamily;
+    }
+    
+    void updateTexture( const char* data, VkDeviceSize dataSize, VkOffset2D imageOffset, VkExtent2D imageExtent );
+    void updateTexture( const char* filePath );
+    
+    void updateTexture( const std::shared_ptr<VksBuffer>& buffer, VkOffset2D imageOffset, VkExtent2D imageExtent );
 private:
     VksTexture();
 
@@ -72,7 +91,7 @@ private:
     uint32_t m_height;
     VkImageAspectFlags m_aspectFlag;
     bool m_ownTexture;
-    
+
 private:
     void __createImage( uint32_t width, uint32_t height, VkFormat format, VkImageLayout imageLayout, VkImageUsageFlags usage, VkMemoryPropertyFlags properties );
     

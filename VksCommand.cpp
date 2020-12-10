@@ -1,5 +1,6 @@
 #include "VksCommand.hpp"
 #include <array>
+#include "VksBarrier.hpp"
 
 std::shared_ptr<VksCommand> VksCommand::createCommandPool(uint32_t queueFamilyIndex)
 {
@@ -54,10 +55,17 @@ void VksCommand::endOnceSubmitBuffer( VkCommandBuffer commandbuffer )
     submit.commandBufferCount = 1;
     submit.pCommandBuffers = &commandbuffer;
 
-    vkQueueSubmit( m_graphicsQueue, 1, &submit, VK_NULL_HANDLE);
-    vkQueueWaitIdle( m_graphicsQueue );
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    
+    VkFence fence;
+    vkCreateFence(m_logicDevice, &fenceCreateInfo, nullptr, &fence);
+
+    vkQueueSubmit( m_graphicsQueue, 1, &submit, fence);
+    vkWaitForFences(m_logicDevice, 1, &fence, VK_TRUE, UINT64_MAX);
 
     vkFreeCommandBuffers(m_logicDevice, m_commandPool, 1, &commandbuffer);
+    vkDestroyFence(m_logicDevice, fence, nullptr);
 }
 
 std::vector<VkCommandBuffer> VksCommand::createPrimaryBuffer(int size)
@@ -95,7 +103,8 @@ VkCommandPool VksCommand::getCommandPool() const
     return m_commandPool;
 }
 
-void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer)
+void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shared_ptr<VksFramebuffer> dstFramebuffer,
+                                 std::shared_ptr<VksBarrier> barrier)
 {
     VkCommandBufferBeginInfo bufferBeginInfo = {};
     bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -104,6 +113,10 @@ void VksCommand::beginRenderPass( VkCommandBuffer commandBuffer, const std::shar
     
     VK_CHECK( vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo) )
     
+    if( barrier )
+    {
+        barrier->setBarrier( commandBuffer );
+    }
     
     VkRenderPassBeginInfo renderBeginInfo = {};
     renderBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

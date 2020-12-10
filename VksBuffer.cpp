@@ -67,6 +67,8 @@ std::shared_ptr<VksBuffer> VksBuffer::createBuffer(VkDeviceSize size, VkBufferUs
         throw std::runtime_error("fail to alloc memory");
     }
     
+    buffer->m_memoryFlags = flags;
+    
     vkBindBufferMemory(m_logicDevice, buffer->m_buffer, buffer->m_bufferMemory, 0);
     return buffer;
 }

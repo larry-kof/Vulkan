@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1811DB992549ACE80009472F /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1811DB962549ACE70009472F /* texture.cpp */; };
 		1811DB9A2549ACE80009472F /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1811DB972549ACE70009472F /* triangle.cpp */; };
-		1811DB9B2549ACE80009472F /* depth_example.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1811DB982549ACE70009472F /* depth_example.cpp */; };
+		181C48E825825FEA0005FF7A /* compute_example.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181C48E725825FEA0005FF7A /* compute_example.cpp */; };
+		181C48EC258260280005FF7A /* VksBarrier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181C48EB258260280005FF7A /* VksBarrier.cpp */; };
+		181C48EE2582608A0005FF7A /* texture1.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 181C48ED258260840005FF7A /* texture1.jpg */; };
 		181FBF6024F11596009A5874 /* VksFramebuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181FBF5B24F11595009A5874 /* VksFramebuffer.cpp */; };
 		181FBF6124F11596009A5874 /* VksTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181FBF5C24F11595009A5874 /* VksTexture.cpp */; };
 		181FBF6324F115BA009A5874 /* shaders in CopyFiles */ = {isa = PBXBuildFile; fileRef = 181FBF6224F115A6009A5874 /* shaders */; };
@@ -40,6 +41,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				181C48EE2582608A0005FF7A /* texture1.jpg in CopyFiles */,
 				183073272551944D00FBAF56 /* texture.jpg in CopyFiles */,
 				181FBF6324F115BA009A5874 /* shaders in CopyFiles */,
 				1820FB3D24B9677400053D94 /* libvulkan.1.2.131.dylib in CopyFiles */,
@@ -54,6 +56,11 @@
 		1811DB962549ACE70009472F /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../Demo/texture.cpp; sourceTree = "<group>"; };
 		1811DB972549ACE70009472F /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangle.cpp; path = ../../Demo/triangle.cpp; sourceTree = "<group>"; };
 		1811DB982549ACE70009472F /* depth_example.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = depth_example.cpp; path = ../../Demo/depth_example.cpp; sourceTree = "<group>"; };
+		181C48E725825FEA0005FF7A /* compute_example.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = compute_example.cpp; path = ../../Demo/compute_example.cpp; sourceTree = "<group>"; };
+		181C48E9258260100005FF7A /* VksCompute.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = VksCompute.hpp; path = ../../VksCompute.hpp; sourceTree = "<group>"; };
+		181C48EA258260280005FF7A /* VksBarrier.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = VksBarrier.hpp; path = ../../VksBarrier.hpp; sourceTree = "<group>"; };
+		181C48EB258260280005FF7A /* VksBarrier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VksBarrier.cpp; path = ../../VksBarrier.cpp; sourceTree = "<group>"; };
+		181C48ED258260840005FF7A /* texture1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = texture1.jpg; path = ../../texture1.jpg; sourceTree = "<group>"; };
 		181FBF5B24F11595009A5874 /* VksFramebuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VksFramebuffer.cpp; path = ../../VksFramebuffer.cpp; sourceTree = "<group>"; };
 		181FBF5C24F11595009A5874 /* VksTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VksTexture.cpp; path = ../../VksTexture.cpp; sourceTree = "<group>"; };
 		181FBF5D24F11596009A5874 /* VksTexture.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = VksTexture.hpp; path = ../../VksTexture.hpp; sourceTree = "<group>"; };
@@ -106,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				1811DB982549ACE70009472F /* depth_example.cpp */,
+				181C48E725825FEA0005FF7A /* compute_example.cpp */,
 				1811DB962549ACE70009472F /* texture.cpp */,
 				1811DB972549ACE70009472F /* triangle.cpp */,
 			);
@@ -115,6 +123,7 @@
 		4A254DA824B8326D002590CB = {
 			isa = PBXGroup;
 			children = (
+				181C48ED258260840005FF7A /* texture1.jpg */,
 				183073262551944D00FBAF56 /* texture.jpg */,
 				181FBF6224F115A6009A5874 /* shaders */,
 				4A254DBB24B832A4002590CB /* Sources */,
@@ -149,6 +158,8 @@
 				4A254DBD24B832C2002590CB /* VksBuffer.hpp */,
 				4A254DC624B832C2002590CB /* VksCommand.cpp */,
 				4A254DBC24B832C2002590CB /* VksCommand.hpp */,
+				181C48EB258260280005FF7A /* VksBarrier.cpp */,
+				181C48EA258260280005FF7A /* VksBarrier.hpp */,
 				4A254DC424B832C2002590CB /* VksShaderProgram.cpp */,
 				4A254DBE24B832C2002590CB /* VksShaderProgram.hpp */,
 				4A254DC524B832C2002590CB /* VksSwapChain.cpp */,
@@ -157,6 +168,7 @@
 				4A254DD824B85505002590CB /* VksAttribute.cpp */,
 				18E98EF924BAB2CD00527066 /* VksGraphicPipeline.cpp */,
 				18E98EFA24BAB2CD00527066 /* VksGraphicPipeline.hpp */,
+				181C48E9258260100005FF7A /* VksCompute.hpp */,
 				18E98EFC24BB08FB00527066 /* VksColorBlend.cpp */,
 				18E98EFD24BB08FB00527066 /* VksColorBlend.hpp */,
 				18E98EFF24BB115F00527066 /* VksDepthStencil.cpp */,
@@ -233,17 +245,17 @@
 			files = (
 				18E98EFE24BB08FB00527066 /* VksColorBlend.cpp in Sources */,
 				4A254DCA24B832C2002590CB /* VksShaderProgram.cpp in Sources */,
-				1811DB9B2549ACE80009472F /* depth_example.cpp in Sources */,
 				4A254DC924B832C2002590CB /* VkEngine.cpp in Sources */,
+				181C48E825825FEA0005FF7A /* compute_example.cpp in Sources */,
 				4A254DC824B832C2002590CB /* main.cpp in Sources */,
 				1837BC5624D6638200A5B633 /* VksRenderPass.cpp in Sources */,
 				4A254DC724B832C2002590CB /* VksBuffer.cpp in Sources */,
 				4A254DD924B85505002590CB /* VksAttribute.cpp in Sources */,
 				4A254DCC24B832C2002590CB /* VksCommand.cpp in Sources */,
 				181FBF6124F11596009A5874 /* VksTexture.cpp in Sources */,
+				181C48EC258260280005FF7A /* VksBarrier.cpp in Sources */,
 				181FBF6024F11596009A5874 /* VksFramebuffer.cpp in Sources */,
 				4A254DCB24B832C2002590CB /* VksSwapChain.cpp in Sources */,
-				1811DB992549ACE80009472F /* texture.cpp in Sources */,
 				18E98EFB24BAB2CD00527066 /* VksGraphicPipeline.cpp in Sources */,
 				1811DB9A2549ACE80009472F /* triangle.cpp in Sources */,
 				18E98F0124BB115F00527066 /* VksDepthStencil.cpp in Sources */,
