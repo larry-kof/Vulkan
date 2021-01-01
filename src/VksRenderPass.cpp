@@ -175,7 +175,19 @@ void VksRenderPass::addColorAttachment(VkFormat attachFormat, VkImageLayout fina
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     
     VkAttachmentReference ref = {};
-    ref.layout = finalImagelayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : finalImagelayout;
+    // ref.layout = finalImagelayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : finalImagelayout;
+    if( finalImagelayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR )
+    {
+        ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+    else if( finalImagelayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL )
+    {
+        ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    }
+    else
+    {
+        ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
     ref.attachment = m_attachDescs.size();
     
     m_attachDescs.push_back( attachment );

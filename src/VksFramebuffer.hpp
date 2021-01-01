@@ -35,6 +35,9 @@ public:
 
     VkRenderPass getVkRenderPass();
 
+    const std::shared_ptr<VksTexture> getColorTexture();
+    const std::shared_ptr<VksTexture> getDepthStencilTexture();
+
     void bind( std::shared_ptr<VksBarrier> barrier = nullptr );
     void unBind();
     
@@ -44,7 +47,7 @@ public:
     void draw( int vertexCount );
     void drawIndexed( int indexCount );
     
-    void submitRender( std::vector<VkSemaphore>& waitSemaphores, std::vector<VkPipelineStageFlags>& waitStages,
+    void submitRender( const std::vector<VkSemaphore>& waitSemaphores, std::vector<VkPipelineStageFlags>& waitStages,
                       std::vector<VkSemaphore>& signalSemaphores );
     
 private:

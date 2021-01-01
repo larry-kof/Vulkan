@@ -72,7 +72,8 @@ protected:
     VkViewport m_viewport;
     VkRect2D m_scissor;
     
-    std::weak_ptr<VksShaderProgram> m_weakShader;
+    std::shared_ptr<VksShaderProgram> m_Shader;
+    std::shared_ptr<VksAttribute> m_attribute;
 };
 
 #endif /* VksGraphicPipeline_hpp */

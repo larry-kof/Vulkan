@@ -12,7 +12,7 @@
 #include <tuple>
 #include <vector>
 
-class VksAttribute : protected VkEngine
+class VksAttribute : protected VkEngine, public std::enable_shared_from_this<VksAttribute>
 {
 public:
 //    using AttributeElement = std::tuple<int/*binding*/, int/*location*/, VkFormat ,int/*offset*/>;

@@ -112,3 +112,9 @@ int depthDemo( VksSwapChain& swapChain )
     }
     return 0;
 }
+
+int main()
+{
+    VksSwapChain swapChain;
+    return depthDemo( swapChain );
+}

@@ -60,7 +60,7 @@ void VksGraphicPipeline::__addShaderComponent(VksShaderProgram *shader)
     
     m_graphicPipelineInfo.layout = shader->getPipelineLayout();
     
-    m_weakShader = shader->shared_from_this();
+    m_Shader = shader->shared_from_this();
 }
 
 void VksGraphicPipeline::__addAttributeComponent(VksAttribute *attribute)
@@ -70,6 +70,8 @@ void VksGraphicPipeline::__addAttributeComponent(VksAttribute *attribute)
     
     m_graphicPipelineInfo.pInputAssemblyState = &inputAssemble;
     m_graphicPipelineInfo.pVertexInputState = &vertexStateInfo;
+    
+    m_attribute = attribute->shared_from_this();
 }
 
 void VksGraphicPipeline::__addColorBlendComponent(VksColorBlend *colorBlend)

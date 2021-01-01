@@ -138,3 +138,9 @@ int triangleDemo( VksSwapChain& swapChain )
     }
     return 0;
 }
+
+int main()
+{
+    VksSwapChain swapChain;
+    return triangleDemo( swapChain );
+}

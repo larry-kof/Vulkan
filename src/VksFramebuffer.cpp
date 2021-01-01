@@ -132,8 +132,7 @@ void VksFramebuffer::unBind()
 
 void VksFramebuffer::bindUniformSets(int setsIndex)
 {
-    auto shader = m_graphicPipeline->m_weakShader.lock();
-    if( !shader ) return;
+    auto shader = m_graphicPipeline->m_Shader;
     m_graphicCommand->bindUniformSet(m_commandBuffer, shader, shader->getDescriptorSet( setsIndex ));
 }
 
@@ -157,7 +156,7 @@ void VksFramebuffer::drawIndexed(int indexCount)
     m_graphicCommand->drawIndexed(m_commandBuffer, indexCount);
 }
 
-void VksFramebuffer::submitRender(std::vector<VkSemaphore> &waitSemaphores, std::vector<VkPipelineStageFlags> &waitStages, std::vector<VkSemaphore> &signalSemaphores)
+void VksFramebuffer::submitRender(const std::vector<VkSemaphore> &waitSemaphores, std::vector<VkPipelineStageFlags> &waitStages, std::vector<VkSemaphore> &signalSemaphores)
 {
     vkWaitForFences(m_logicDevice, 1, &m_fence, VK_TRUE, UINT_MAX);
     VkSubmitInfo submitInfo = {};
@@ -209,4 +208,14 @@ VksFramebuffer::~VksFramebuffer()
     {
         vkDestroyFence(m_logicDevice, m_fence, nullptr);
     }
+}
+
+const std::shared_ptr<VksTexture> VksFramebuffer::getColorTexture()
+{
+    return m_colorTexture;
+}
+
+const std::shared_ptr<VksTexture> VksFramebuffer::getDepthStencilTexture()
+{
+    return m_depthStencilTexture;
 }

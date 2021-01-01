@@ -15,7 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-static struct TextureVertex {
+struct TextureVertex {
     glm::vec2 pos;
     glm::vec2 texCoord;
 };
@@ -152,4 +152,10 @@ int computeDemo( VksSwapChain& swapChain )
         std::cout << " exception = " << e.what();
     }
     return 0;
+}
+
+int main()
+{
+    VksSwapChain swapChain;
+    return computeDemo( swapChain );
 }
