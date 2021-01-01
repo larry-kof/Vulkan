@@ -16,6 +16,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 file( GLOB SRC_FILES "*.cpp" "*.hpp" )
 
 link_directories("/usr/local/lib")
-add_library( VulkanTools SHARED ${SRC_FILES})
+# add_library( VulkanTools SHARED ${SRC_FILES})
+add_library( VulkanTools ${SRC_FILES})
 
 target_link_libraries(VulkanTools ${ALL_LIBS} )
